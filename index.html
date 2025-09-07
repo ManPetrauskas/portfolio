@@ -219,23 +219,14 @@
         </nav>
 
         <div class="stats">
-            <div class="stats-title">Performance Metrics</div>
             <div class="stat-grid">
                 <div class="stat">
                     <span class="stat-value loading" id="loadTime">--</span>
                     <span class="stat-label">Load Time (ms)</span>
                 </div>
                 <div class="stat">
-                    <span class="stat-value loading" id="domNodes">--</span>
-                    <span class="stat-label">DOM Nodes</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value loading" id="memoryUsed">--</span>
-                    <span class="stat-label">Memory (MB)</span>
-                </div>
-                <div class="stat">
-                    <span class="stat-value loading" id="connection">--</span>
-                    <span class="stat-label">Connection</span>
+                    <span class="stat-value loading" id="viewport">--</span>
+                    <span class="stat-label">Viewport</span>
                 </div>
             </div>
         </div>
@@ -286,19 +277,24 @@
             }, 2000);
         }
 
+        // Format viewport dimensions
+        function getViewportSize() {
+            const width = Math.max(document.documentElement.clientWidth || 0, window.innerWidth || 0);
+            const height = Math.max(document.documentElement.clientHeight || 0, window.innerHeight || 0);
+            
+            // Format for mobile vs desktop
+            if (width < 768) {
+                return `${width}×${height}`;
+            }
+            return `${width}×${height}`;
+        }
+
         function updateStats() {
             // Load time
             const loadTimeEl = document.getElementById('loadTime');
             if (loadTimeEl) {
                 const loadTime = Math.round(performance.now() - startTime);
                 loadTimeEl.textContent = loadTime;
-            }
-
-            // DOM nodes count
-            const domNodesEl = document.getElementById('domNodes');
-            if (domNodesEl) {
-                const domNodes = document.querySelectorAll('*').length;
-                domNodesEl.textContent = domNodes;
             }
 
             // Memory usage (if available)
@@ -310,6 +306,12 @@
                 } else {
                     memoryUsedEl.textContent = 'N/A';
                 }
+            }
+
+            // Viewport dimensions
+            const viewportEl = document.getElementById('viewport');
+            if (viewportEl) {
+                viewportEl.textContent = getViewportSize();
             }
 
             // Connection type (if available)
@@ -325,6 +327,18 @@
             // Remove loading animation
             document.querySelectorAll('.loading').forEach(el => el.classList.remove('loading'));
         }
+
+        // Update viewport on resize
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                const viewportEl = document.getElementById('viewport');
+                if (viewportEl) {
+                    viewportEl.textContent = getViewportSize();
+                }
+            }, 100);
+        });
 
         // Ensure DOM is ready before running
         if (document.readyState === 'loading') {
